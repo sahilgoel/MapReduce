@@ -1,0 +1,595 @@
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.fs.Path;
+
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Reducer;
+import java.io.IOException;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+import java.lang.String;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Mapper;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+
+public class Project {
+
+  public static void main(String[] args) throws Exception {
+	try {  
+    Job job = new Job();
+    job.setJarByClass(Project.class);
+    job.setJobName("Ideal City");
+
+    FileInputFormat.addInputPath(job, new Path("/home/cloudera/Desktop/crime.csv"));
+    FileOutputFormat.setOutputPath(job, new Path("/home/cloudera/Desktop/crimes.txt"));
+    
+    job.setMapperClass(Crime.class);
+    job.setReducerClass(Reducers.class);
+   
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(Text.class);
+    boolean b1=job.waitForCompletion(true);
+    
+    
+    
+    
+    Job job2 = new Job();
+    job2.setJarByClass(Project.class);
+    job2.setJobName("Ideal City");
+
+    FileInputFormat.addInputPath(job2, new Path("/home/cloudera/Desktop/mortality.csv"));
+    
+    FileOutputFormat.setOutputPath(job2, new Path("/home/cloudera/Desktop/mortalities.txt"));
+    
+    job2.setMapperClass(Mortality.class);
+    job2.setReducerClass(Reducers_mortality.class);
+    
+    job2.setOutputKeyClass(Text.class);
+    job2.setOutputValueClass(Text.class);
+    
+    boolean b2=job2.waitForCompletion(true);
+    
+    
+    
+    
+    Job job3 = new Job();
+    job3.setJarByClass(Project.class);
+    
+    FileInputFormat.addInputPath(job3, new Path("/home/cloudera/Desktop/poverty.csv"));
+    FileOutputFormat.setOutputPath(job3, new Path("/home/cloudera/Desktop/poverties.txt"));
+    
+    job3.setMapperClass(Poverty.class);
+    job3.setReducerClass(Reducers_poverty.class);
+    
+    job3.setOutputKeyClass(Text.class);
+    job3.setOutputValueClass(Text.class);
+    
+    boolean b3=job3.waitForCompletion(true);
+    
+    
+    
+    
+    Job job4 = new Job();
+    job4.setJarByClass(Project.class);
+    
+    FileInputFormat.addInputPath(job4, new Path("/home/cloudera/Desktop/education.csv"));
+    FileOutputFormat.setOutputPath(job4, new Path("/home/cloudera/Desktop/educations.txt"));
+    
+    job4.setMapperClass(Education.class);
+    job4.setReducerClass(Reducers_education.class);
+    
+    job4.setOutputKeyClass(Text.class);
+    job4.setOutputValueClass(Text.class);
+    
+    boolean b4=job4.waitForCompletion(true);
+
+
+    Job job5 = new Job();
+    job5.setJarByClass(Project.class);
+    
+    FileInputFormat.addInputPath(job5, new Path("/home/cloudera/Desktop/income.csv"));
+    FileOutputFormat.setOutputPath(job5, new Path("/home/cloudera/Desktop/income.txt"));
+    
+    job5.setMapperClass(Income.class);
+    job5.setReducerClass(Reducers_income.class);
+    
+    job5.setOutputKeyClass(Text.class);
+    job5.setOutputValueClass(Text.class);
+    
+    boolean b5=job5.waitForCompletion(true);
+
+
+    Job job6 = new Job();
+    job6.setJarByClass(Project.class);
+    
+    FileInputFormat.addInputPath(job6, new Path("/home/cloudera/Desktop/2000.csv"));
+    FileOutputFormat.setOutputPath(job6, new Path("/home/cloudera/Desktop/storms.txt"));
+    
+    job6.setMapperClass(Storms.class);
+    job6.setReducerClass(Reducers_storms.class);
+    
+    job6.setOutputKeyClass(Text.class);
+    job6.setOutputValueClass(Text.class);
+    
+    boolean b6=job6.waitForCompletion(true);
+    
+    
+    Job job7 = new Job();
+    job7.setJarByClass(Project.class);
+    
+    FileInputFormat.addInputPath(job7, new Path("/home/cloudera/Desktop/pollution.csv"));
+    FileOutputFormat.setOutputPath(job7, new Path("/home/cloudera/Desktop/pollution.txt"));
+    
+    job7.setMapperClass(Pollution.class);
+    //job6.setCombinerClass(Reducers_storms.class);
+    job7.setReducerClass(Reducers_pollution.class);
+    
+    job7.setOutputKeyClass(Text.class);
+    job7.setOutputValueClass(Text.class);
+    
+    boolean b7=job7.waitForCompletion(true);
+    
+    
+    
+    String []filename={"/home/cloudera/Desktop/crimes.txt/part-r-00000", "/home/cloudera/Desktop/pollution.txt/part-r-00000", "/home/cloudera/Desktop/poverties.txt/part-r-00000", "/home/cloudera/Desktop/income.txt/part-r-00000", "/home/cloudera/Desktop/educations.txt/part-r-00000", "/home/cloudera/Desktop/storms.txt/part-r-00000", "/home/cloudera/Desktop/mortalities.txt/part-r-00000"};
+    File file=new File("/home/cloudera/Desktop/final.txt");
+
+    FileWriter output=new FileWriter(file);
+    try
+    {   
+      for(int i=0;i<filename.length;i++)
+      {
+        BufferedReader objBufferedReader = new BufferedReader(new FileReader(filename[i]));
+        String line;
+        while ((line = objBufferedReader.readLine())!=null )
+        {
+          line=line.replace("","");
+          
+          output.write(line+"\n");
+        }
+        objBufferedReader.close();
+      }
+      output.close();
+    }
+    catch (Exception e) 
+    {
+      throw new Exception (e);
+    }
+    
+    
+    Job job8 = new Job();
+    job8.setJarByClass(Project.class);
+    
+    FileInputFormat.addInputPath(job8, new Path("/home/cloudera/Desktop/final.txt"));
+    FileOutputFormat.setOutputPath(job8, new Path("/home/cloudera/Desktop/index.txt"));
+    
+    job8.setMapperClass(Total.class);
+    //job6.setCombinerClass(Reducers_storms.class);
+    job8.setReducerClass(Reducer_Total.class);
+    
+    job8.setOutputKeyClass(Text.class);
+    job8.setOutputValueClass(Text.class);
+    
+    boolean b8=job8.waitForCompletion(true);
+    
+    
+
+    File file1=new File("/home/cloudera/Desktop/index.txt/part-r-00000");
+    File file2=new File("/home/cloudera/Desktop/Sorted_final.txt");
+    FileWriter output1=new FileWriter(file2);
+    try
+    {   
+        BufferedReader objBufferedReader1 = new BufferedReader(new FileReader(file1));
+        String line;
+        String[][] data=new String[56][2];
+        int i=0;
+        
+        while ((line = objBufferedReader1.readLine())!=null )
+        {
+            String[] tokens=line.split("\t");
+            data[i][0]=tokens[0];
+            data[i++][1]=tokens[1];
+        }
+        
+        for(int j=0;j<56;j++)
+        {
+        	for(int k=0;k<56-j-1;k++)
+        	{
+        		Double d1=Double.parseDouble(data[k][1]);
+        		Double d2=Double.parseDouble(data[k+1][1]);
+        		//System.out.println(d1+ " " + d2);
+        		if(d1.compareTo(d2)<0)
+        		{
+        			String temp1=data[k][0];
+        			String temp2=data[k][1];
+        			
+        			data[k][0]=data[k+1][0];
+        			data[k][1]=data[k+1][1];
+        			
+        			data[k+1][0]=temp1;
+        			data[k+1][1]=temp2;
+        		//	System.out.println("Here");
+        		}
+        		
+        	}
+        }
+        
+        
+        for(int x=0;x<56;x++)
+        {
+        	output1.write("Rank"+(x+1)+": "+data[x][0]+"\t"+data[x][1]+"\n");
+        	
+        }
+        
+        objBufferedReader1.close();
+        output1.close();
+    }
+    catch (Exception e) 
+    {
+      throw new Exception (e);
+    }
+
+    
+    int check=0;
+    if(b1==true && b2==true && b3==true && b4==true && b5==true && b6==true && b7==true && b8==true)
+    	check=1;
+    System.exit(check);
+	}
+	catch(Exception e)
+	{
+		e.printStackTrace();
+	}
+  }
+  
+}
+
+
+
+
+
+
+
+class Crime extends Mapper<LongWritable, Text, Text, Text> {	
+
+  @Override
+  public void map(LongWritable key, Text value, Context context)
+      throws IOException, InterruptedException {
+	  
+	  long crimes=0;
+      long population;
+      Double normalized;
+      
+      String line = value.toString();	
+	  String[] tokens = line.split(",");
+			
+      String state=tokens[0];
+      state=state.toLowerCase();
+                            
+      for(int l=3;l<12;l++)
+      crimes+=Integer.parseInt(tokens[l]);
+      
+      population=Integer.parseInt(tokens[2]);
+      normalized=((double) crimes)*(.9)/((double) population);
+      
+      
+      context.write(new Text(state), new Text(normalized.toString()));
+      }	  
+  
+}
+
+
+class Education extends Mapper<LongWritable, Text, Text, Text> {	
+
+  @Override
+  public void map(LongWritable key, Text value, Context context)
+      throws IOException, InterruptedException {
+
+	  String line = value.toString();	
+	  String[] tokens = line.split(",");
+			
+      String state=tokens[0];
+      state=state.toLowerCase();
+
+      Double education;
+      education = 0.5*(Double.parseDouble(tokens[16])+Double.parseDouble(tokens[19])) + 1.0*(Double.parseDouble(tokens[17])+Double.parseDouble(tokens[20])) + 1.5*(Double.parseDouble(tokens[18])+Double.parseDouble(tokens[21]));
+      
+      education = (8.00 * education)/(500*6);
+      
+      context.write(new Text(state), new Text(education.toString()));
+  }
+      
+}
+
+
+ class Income extends Mapper<LongWritable, Text, Text, Text> {	
+
+  @Override
+  public void map(LongWritable key, Text value, Context context)
+      throws IOException, InterruptedException {
+
+	  String line = value.toString();	
+	  String[] tokens = line.split(",");
+			
+      String state=tokens[0];
+      state=state.toLowerCase();
+    
+      Double income;
+      income = (Double.parseDouble(tokens[1]));
+      income = (9.00 * income)/(7000);
+      
+      context.write(new Text(state), new Text(income.toString()));
+  }
+      
+}
+
+
+
+class Mortality extends Mapper<LongWritable, Text, Text, Text> {	
+
+	  @Override
+	  public void map(LongWritable key, Text value, Context context)
+	      throws IOException, InterruptedException {
+		  
+		  Double mortality;
+	      
+	      String line = value.toString();	
+		  String[] tokens = line.split(",");
+	      
+	      String state=tokens[0];
+	      state=state.toLowerCase();
+	      if(state.contains("columbia"))
+	    	  state="columbia";
+	      mortality=Double.parseDouble(tokens[1]);
+	      mortality=1-((mortality/10000) *4.00);
+	      context.write(new Text(state), new Text(mortality.toString()));
+	      }	  
+	  
+	}
+
+
+
+
+class Pollution extends Mapper<LongWritable, Text, Text, Text> {	
+
+	  @Override
+	  public void map(LongWritable key, Text value, Context context)
+	      throws IOException, InterruptedException {
+		  
+		  Double pollution=0.0;
+	      
+	      String line = value.toString();	
+		  String[] tokens = line.split(",");
+		  if(tokens[0].equalsIgnoreCase("Carbon monoxide"))
+	      {
+		  
+	      String state=tokens[7];
+	      state=state.toLowerCase();
+	      if(state.contains("columbia"))
+	    	  state="columbia";
+	      pollution=Double.parseDouble(tokens[1])*.65;
+	      
+	    	  context.write(new Text(state), new Text(pollution.toString()));
+	    	  
+	      }
+	      
+	      }	  
+	  
+	}
+
+
+ class Poverty extends Mapper<LongWritable, Text, Text, Text> {	
+
+	  @Override
+	  public void map(LongWritable key, Text value, Context context)
+	      throws IOException, InterruptedException {
+		  
+		  Double poverty;
+	      
+	      String line = value.toString();	
+		  String[] tokens = line.split(",");
+	      
+	      String state=tokens[0];
+	      
+	      state=state.toLowerCase();
+	      if(state.contains("columbia"))
+	    	  state="columbia";
+	      poverty=(3*Double.parseDouble(tokens[1]) + Double.parseDouble(tokens[2]));
+	      poverty=1 - ((poverty) *.7);
+	      
+	      context.write(new Text(state), new Text(poverty.toString()));
+	      }	  
+	  
+	}
+
+
+
+
+class Reducer_Total extends Reducer<Text, Text, Text, Text> {
+
+  @Override
+  public void reduce(Text key, Iterable<Text> values, Context context)
+      throws IOException, InterruptedException {
+
+	double sum=0;
+	int count=0;
+	
+	for(Text t : values)
+	{
+		sum+=Float.parseFloat(t.toString());
+		count++;
+	}
+
+	context.write(key, new Text((sum/7.00)*100+""));
+	  
+  }
+}
+
+
+class Reducers_education extends Reducer<Text, Text, Text, Text> {
+
+  @Override
+  public void reduce(Text key, Iterable<Text> values, Context context)
+      throws IOException, InterruptedException {
+
+	for(Text t : values)
+	{
+		context.write(key,t);
+	}
+  
+  }
+}
+
+
+class Reducers_income extends Reducer<Text, Text, Text, Text> {
+
+  @Override
+  public void reduce(Text key, Iterable<Text> values, Context context)
+      throws IOException, InterruptedException {
+
+	for(Text t : values)
+	{
+		context.write(key,t);
+	}
+  
+  }
+}
+
+
+class Reducers_mortality extends Reducer<Text, Text, Text, Text> {
+
+  @Override
+  public void reduce(Text key, Iterable<Text> values, Context context)
+      throws IOException, InterruptedException {
+
+	for(Text t : values)
+	{
+		context.write(key,t);
+	}
+  
+  }
+}
+
+
+class Reducers_pollution extends Reducer<Text, Text, Text, Text> {
+
+  @Override
+  public void reduce(Text key, Iterable<Text> values, Context context)
+      throws IOException, InterruptedException {
+
+	double sum=0;
+	int count=0;
+	
+	for(Text t : values)
+	{
+		sum+=Float.parseFloat(t.toString());
+		count++;
+	}
+
+	context.write(key, new Text((1-(sum/count)) + " "));
+	  
+  }
+}
+
+class Reducers_poverty extends Reducer<Text, Text, Text, Text> {
+
+  @Override
+  public void reduce(Text key, Iterable<Text> values, Context context)
+      throws IOException, InterruptedException {
+	for(Text t : values)
+	{
+		context.write(key,t);
+	}
+  
+  }
+}
+
+
+class Reducers_storms extends Reducer<Text, Text, Text, Text> {
+
+  @Override
+  public void reduce(Text key, Iterable<Text> values, Context context)
+      throws IOException, InterruptedException {
+	 double count=0;
+	for(Text t : values)
+	{
+		count++;
+	}
+	count/=3000;
+	count=1-count;
+	count=count*.6;
+	context.write(key, new Text(count+"")); 
+  }
+}
+
+
+class Reducers extends Reducer<Text, Text, Text, Text> {
+
+  @Override
+  public void reduce(Text key, Iterable<Text> values, Context context)
+      throws IOException, InterruptedException {
+
+	double sum=0;
+	int count=0;
+	
+	for(Text t : values)
+	{
+		sum+=Float.parseFloat(t.toString());
+		count++;
+	}
+
+	context.write(key, new Text(1-(sum/count) + " "));
+	  
+  }
+}
+
+
+ class Storms extends Mapper<LongWritable, Text, Text, Text> {	
+
+  @Override
+  public void map(LongWritable key, Text value, Context context)
+      throws IOException, InterruptedException {
+
+	  String line = value.toString();
+
+      //System.out.println(line);
+	  String[] tokens = line.split(",");
+			
+      String state=tokens[8].toLowerCase();
+      
+      if(state.contains("columbia"))
+      {
+    	  state="columbia";
+      }
+      
+      String damage=tokens[22];
+      
+      if(damage.contains(".") || damage.contains("0") || damage.contains("1") || damage.contains("2") || damage.contains("3") || damage.contains("4") || damage.contains("5") || damage.contains("6") || damage.contains("7") || damage.contains("8") || damage.contains("9") )
+      {
+    	  context.write(new Text(state), new Text(((Integer) 1).toString()));
+      }
+  }
+      
+}
+
+
+class Total extends Mapper<LongWritable, Text, Text, Text> {	
+
+  @Override
+  public void map(LongWritable key, Text value, Context context)
+      throws IOException, InterruptedException {
+	  
+      String line = value.toString();	
+	  String[] tokens = line.split("\t");		
+      context.write(new Text(tokens[0]), new Text(tokens[1].toString()));
+      }	  
+  
+}
