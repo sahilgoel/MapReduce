@@ -1,0 +1,143 @@
+
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+
+public class Pagerank {
+	
+	public static void main(String[] args) throws Exception{
+		
+		if(args.length!=4)
+		{
+			System.out.println("Usage: Page Rank <input path> <output path1> <output path2> <output path 3> ");
+			System.exit(-1);
+		}
+		int count=0;
+		Job job=new Job();
+		
+		while(count<3)
+		{
+			job=new Job();
+			job.setJarByClass(Pagerank.class);
+			job.setJobName("Page Rank");
+
+			FileInputFormat.addInputPath(job, new Path(args[count]));
+			FileOutputFormat.setOutputPath(job, new Path(args[count+1]));
+
+			job.setMapperClass(PagerankMapper.class);
+			job.setReducerClass(PagerankReducer.class);
+
+			job.setOutputKeyClass(Text.class);
+			job.setOutputValueClass(Text.class);
+            while(!job.waitForCompletion(true));
+			count++;
+		}
+System.exit(job.waitForCompletion(true)? 0 : 1);
+
+	}
+}
+
+
+
+
+import java.io.IOException;
+import java.util.StringTokenizer;
+
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Mapper;
+
+
+public class PagerankMapper extends Mapper<LongWritable, Text, Text, Text>{
+private static final int MISSING = 9999;
+@Override
+public void map(LongWritable Key, Text value, Context context) throws IOException, InterruptedException
+	{
+	int i=0;
+	Double pr=0.00;
+
+	char arr[]=new char[10];
+	String line=value.toString();
+	StringTokenizer st=new StringTokenizer(line);
+	String keyr="", valuer="";
+	keyr=st.nextToken();
+	while(st.hasMoreTokens())
+	{
+	char temp;
+	
+	String te=st.nextToken();
+	temp=te.charAt(0);
+	if(Character.isLetter(temp))
+		{
+		arr[i++]=temp;
+		}
+	else
+		{
+		pr=Double.parseDouble(te);
+		}
+	}
+	String last="";
+	pr=pr/(i);
+     for(int j=0;j<i;j++)
+     {
+    	 String t1="",t2="";
+    	 t1=""+arr[j];
+    	 last=last+" "+arr[j];
+    	 t2=keyr+", "+pr;
+    	 context.write(new Text(t1), new Text(t2));
+    	 
+     }
+    
+	context.write(new Text(keyr),new Text(last) );
+		
+	}
+}
+
+
+
+import java.io.IOException;
+import java.util.StringTokenizer;
+
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Reducer;
+
+public class PagerankReducer  extends Reducer<Text, Text, Text, Text>
+{
+@Override
+public void reduce(Text key, Iterable<Text> values, Context context)
+throws IOException, InterruptedException
+	{
+	double pr=0.0;
+	String last="";
+	for(Text value : values)
+	{
+		String temp=value.toString();
+		
+		if(temp.contains(","))
+		{
+			StringTokenizer st=new StringTokenizer(temp);
+			st.nextToken();
+			pr=pr + Double.parseDouble(st.nextToken());
+		}
+		else
+		{
+			last=value.toString();
+		}
+	
+	}
+	
+	context.write(key, new Text(last + " " + pr));
+	
+	}
+
+}
+
+
+
+
